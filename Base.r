@@ -8,9 +8,12 @@ setwd('/media/achint/INSOFE/Internship')
 derm_raw<-read.csv('dermatology_data.csv')
 View(derm_raw)
 summary(derm_raw)
+dim(derm_raw)
 str(derm_raw)
 sum(is.na(derm_raw))
 agenum<-subset(derm_raw,select=c(age))
+View(derm_raw[derm_raw$age=='?',])
+
 
 #factorizing all the variables
 factorize<-function(x){as.factor(x)}
