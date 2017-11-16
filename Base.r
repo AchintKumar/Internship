@@ -93,3 +93,7 @@ for(i in 1:ln-1)
 	plot(derm[,i],xlab=names(derm[i]),ylab=)
 	dev.off()
 }
+
+
+
+#new commit
