@@ -1,6 +1,8 @@
 import os
 import seaborn as sns
 import pandas as pd
+import numpy as np
+import matplotlib.pyplot as plt
 #Reading and changing path
 print(os.getcwd())
 os.chdir('/media/achint/INSOFE/Internship')
@@ -21,8 +23,47 @@ print(derm_raw.dtypes)
 
 
 #checking missing values
-print(sum(derm_raw.isnull().any(axis=0)))
+print(derm_raw.age.isnull().any())
+print(derm_raw.np.nan())
+
+#changing values with ? to na in age column
+derm_raw.replace('?','')
+print(derm_raw.age.isnull)
+
+#Converting variables to respective data types
+derm_raw.erythema=derm_raw.erythema.astype('category')
+print(derm_raw.erythema)
 
 
-print(derm_raw.corr())
-print(sns.heatmap(derm_raw.corr(),vmax=1))
+
+
+
+
+
+#Univariate Analysis
+plt.hist(derm_raw.erythema)
+plt.show()
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+#correlation
+corr=derm_raw.corr()
+print(corr)
+corr=pd.DataFrame(corr)
+print(corr.dtypes)
+
+#plotting corrplot
+plt.subplots(figsize=(20,20))
+sns.heatmap(corr,vmax=1)
+plt.show()
