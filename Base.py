@@ -33,7 +33,7 @@ print(derm_raw.age.isnull)
 #Converting variables to respective data types
 colnames=list(derm_raw.columns.values)
 colnames=colnames[:-2]
-print(colnames[0])
+print(colnames)
 for i in colnames:
 	derm_raw[i]=derm_raw[i].astype('category')
 print(derm_raw.dtypes)
@@ -66,6 +66,16 @@ a.plot(kind='pie',subplots=True,autopct='%1.1f%%',labels=['','','','','',''],tit
 plt.gca().set_aspect('equal')
 plt.legend(loc=1,bbox_to_anchor=(1.5,1),labels=['Psoriasis','Seboreic Dermatitis','Lichen Planus','Pityriasis Rosea','Cronic Dermatitis','Pityriasis Rubra Pilaris'])
 plt.show()
+
+
+#Bivariate with disease type (stacked bar)
+for i in colnames:
+	b=pd.crosstab(derm_raw.disease_type,columns=derm_raw[i])
+	b.plot(kind='bar',stacked=True)
+	plt.show()
+
+
+
 
 
 #correlation (drawn before converting to categorical)
