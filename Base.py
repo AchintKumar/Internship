@@ -94,4 +94,46 @@ plt.boxplot(derm_raw.age)
 plt.title('Age')
 plt.show()
 
-#later to do
+
+#Missing values experiment
+derm=derm_raw
+#for x in range(0,len(derm.erythema),5):
+#	derm.erythema[x]=derm.erythema.replace(derm.erythema[x],'',regex=True)
+#print(derm.erythema)
+#how to replace in python
+#importing from r
+derm=pd.read_csv('derm_missing2.csv',sep=',')
+derm=pd.DataFrame(derm)
+print(derm.describe(include='all'))
+print(derm.dtypes)
+print(derm.shape)
+colnames2=list(derm.columns.values)
+colnames2=colnames2[:-1]
+print(colnames2)
+for i in colnames2:
+	derm[i]=derm[i].astype('category')
+print(derm.age)
+
+
+#time calculation
+import time
+
+
+#mode imputation
+#derm = derm.fillna(derm['Label'].value_counts().index[0])
+start_mode=time.time()
+derm = derm.apply(lambda x:x.fillna(x.value_counts().index[0]))
+print(time.time()-start_mode)
+print(derm.erythema)
+
+#knn
+from fancyimpute import KNN
+start_knn=time.time()
+derm_knn=KNN(k=3).complete(derm)
+print(time.time()-start_knn)
+
+#simple fill
+from fancyimpute import SimpleFill
+start_simple=time.time()
+derm_sim=SimpleFill().complete(derm)
+print(time.time()-start_simple)

@@ -13,7 +13,9 @@ str(derm_raw)
 sum(is.na(derm_raw))
 agenum<-subset(derm_raw,select=c(age))
 View(derm_raw[derm_raw$age=='?',])
-
+#to change to num,first convert factor to char
+agenum$age<-as.character(agenum$age)
+agenum$age<-as.numeric(agenum$age)
 
 #factorizing all the variables
 factorize<-function(x){as.factor(x)}
@@ -23,80 +25,63 @@ str(derm)
 #removing the only numeric variable
 derm$age<-NULL
 
-#changing age into numeric
-str(agenum)
-agenum$age<-as.numeric(agenum$age)
 derm<-cbind(derm,agenum)
 str(derm)
 
 #Missing Values
 sum(is.na(derm))
-miss<-function(x){sum(is.na(x))/length(x)}
-apply(derm,2,miss)
 
-#Erythema
-str(derm)
-#plot(derm$erythema)
-#jpeg('erythema_plot.jpeg')
-#dev.off()
-#Trying for all the plots
-#var_list<-combn(names(derm)[1:34],2,simplify=FALSE)
-#plot_list<-list()
-#for (i in 1:34){
-#	p=plot(derm[var_list[i]])
-#	plot_list[[i]]=p
-#} 
-#pdf('plots.pdf')
-#for (i in 1:34) {
-#	print(plot_list[[i]])
+#introducing newer na values in some places
+for(i in seq(1,366,5))
+{
+  derm$erythema<-replace(derm$erythema,i,NA)
+}
+derm2<-derm
+for(i in seq(1,366,5))
+{
+  derm2$erythema<-replace(derm2$erythema,i,'')
+}
+str(derm2)
+#for(j in seq(1,366,7))
+#{
+#  derm$koebner<-replace(derm$koebner,j,NA)
 #}
-#dev.off()
+#for(k in seq(1,366,9))
+#{
+#  derm$exocytosis<-replace(derm$exocytosis,k,NA)
+#}
+#for(l in seq(1,366,15))
+#{
+#  derm$thinning_supra<-replace(derm$thinning_supra,l,NA)
+#}
+sum(is.na(derm))
+write.csv(derm2,file='derm_missing2.csv',row.names=FALSE)
 
-for (i in 1:ln-1) 
-{
-    jpeg(paste('jpeg', names(derm)[i], '.jpeg', sep='')
-    plot(derm[,i], ylab=names(derm[i]),)
-    dev.off()
-}
+#doing different types of imputations
+#KNN,central,missForest,rpart,amelia,mice
+library(DMwR)
+derm_knn<-derm
+start_knn<-Sys.time()
+derm_knn<-knnImputation(derm_knn,k=5)
+end_knn<-Sys.time()
+time_knn<-end_knn - start_knn
+compare_knn<-data.frame(derm_raw$erythema==derm_knn$erythema)
+#compare_knn$derm_raw.erythema....derm_knn.erythema<-as.factor(compare_knn$derm_raw.erythema....derm_knn.erythema)
 
+derm_central<-derm
+start_cen<-Sys.time()
+derm_central<-centralImputation(derm_central)
+end_cen<-Sys.time()
+time_cen<-end_cen - start_cen
+compare_central<-data.frame(derm_raw$erythema==derm_central$erythema)
 
+library(missForest)
+derm_miss<-derm
+start_miss<-Sys.time()
+derm_miss<-missForest(derm_miss)
+end_miss<-Sys.time()
+time_miss<-end_miss - start_miss
+derm_miss_data<-derm_miss$ximp
+compare_miss<-data.frame(derm_raw$erythema==derm_miss_data$erythema)
 
-dfplot <- function(data.frame)
-{
-  df <- data.frame
-  ln <- length(names(data.frame))
-  for(i in 1:ln){
-    mname <- substitute(df[,i])
-    jpeg(names(df)[i],'.jpeg')
-    if(is.factor(df[,i])){
-        plot(df[,i],main=names(df)[i])}
-    else{hist(df[,i],main=names(df)[i])}
-        dev.off()
-  }
-}
-dfplot(derm)
-
-
-mypalette = rainbow(ncol(derm))
-matplot(y = derm$erythema, type = 'b',pch=15:19, col = mypalette)
-
-
-ln<-length(names(derm))
-for (i in 1:ln-1) {
-	jpeg(file='plot.jpeg')
-	#dev.copy(jpeg,filename=derm[i],'plot.jpeg',sep='')
-	plot(derm[,i],xlab=names(derm[i]))
-	dev.off()
-}
-
-
-for(i in 1:ln-1)
-{
-	dev.copy(jpeg,filename=paste(names(derm[i])),'plot.jpeg',sep='')
-	plot(derm[,i],xlab=names(derm[i]),ylab=)
-	dev.off()
-}
-
-
-
-#new commit
+time<-data.frame(time_knn,time_cen,time_miss)
