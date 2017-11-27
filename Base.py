@@ -18,31 +18,37 @@ print(derm_raw.head())
 #Structure of dataset
 #include=all done coz it shows only numerical attributes
 print(derm_raw.describe(include='all'))
-#check data type of dataset
+#check data type of dataset,
 print(derm_raw.dtypes)
 
-
+print(derm_raw.age)
 #checking missing values
 print(derm_raw.age.isnull().any())
-print(derm_raw.np.nan())
+#print(derm_raw.isnan())
 
 #changing values with ? to na in age column
-derm_raw.replace('?','')
-print(derm_raw.age.isnull)
+#derm_raw.replace('?','')
+#derm_raw.age[derm_raw.age=='?']=''
+#print(derm_raw.age.isnull)
 
 #Converting variables to respective data types
+#First 33 to categorical 
 colnames=list(derm_raw.columns.values)
 colnames=colnames[:-2]
 print(colnames)
 for i in colnames:
 	derm_raw[i]=derm_raw[i].astype('category')
+
 print(derm_raw.dtypes)
+
+#disease type to categorical
 print(derm_raw.describe(include='all'))
 derm_raw.disease_type=derm_raw.disease_type.astype('category')
 print(derm_raw.disease_type)
-derm_raw.age[derm_raw.age=='?']='0'
-derm_raw.age=derm_raw.age.astype('float32')
-print(derm_raw.age[32:38])
+
+#age to numeric
+derm_raw.age=derm_raw.age.convert_objects(convert_numeric=True)
+print(derm_raw.age[28:38])
 
 
 
@@ -96,44 +102,94 @@ plt.show()
 
 
 #Missing values experiment
-derm=derm_raw
-#for x in range(0,len(derm.erythema),5):
-#	derm.erythema[x]=derm.erythema.replace(derm.erythema[x],'',regex=True)
-#print(derm.erythema)
-#how to replace in python
-#importing from r
-derm=pd.read_csv('derm_missing2.csv',sep=',')
-derm=pd.DataFrame(derm)
-print(derm.describe(include='all'))
-print(derm.dtypes)
-print(derm.shape)
-colnames2=list(derm.columns.values)
-colnames2=colnames2[:-1]
-print(colnames2)
-for i in colnames2:
-	derm[i]=derm[i].astype('category')
-print(derm.age)
+	#derm=derm_raw
+	#for x in range(0,len(derm.erythema),5):
+	#	derm.erythema[x]=derm.erythema.replace(derm.erythema[x],'',regex=True)
+	#print(derm.erythema)
+	#how to replace in python
+	#importing from r
+#derm=pd.read_csv('derm_missing2.csv',sep=',')
+#derm=pd.DataFrame(derm)
+#print(derm.describe(include='all'))
+#print(derm.dtypes)
+#print(derm.shape)
+#colnames2=list(derm.columns.values)
+#colnames2=colnames2[:-1]
+#print(colnames2)
+#for i in colnames2:
+#	derm[i]=derm[i].astype('category')
+#print(derm.age)
 
 
 #time calculation
-import time
+#import time
 
 
 #mode imputation
 #derm = derm.fillna(derm['Label'].value_counts().index[0])
-start_mode=time.time()
-derm = derm.apply(lambda x:x.fillna(x.value_counts().index[0]))
-print(time.time()-start_mode)
-print(derm.erythema)
+#start_mode=time.time()
+#derm = derm.apply(lambda x:x.fillna(x.value_counts().index[0]))
+#print(time.time()-start_mode)
+#print(derm.erythema)
 
 #knn
-from fancyimpute import KNN
-start_knn=time.time()
-derm_knn=KNN(k=3).complete(derm)
-print(time.time()-start_knn)
+#from fancyimpute import KNN
+#start_knn=time.time()
+#derm_knn=KNN(k=3).complete(derm)
+#print(time.time()-start_knn)
 
 #simple fill
+#from fancyimpute import SimpleFill
+#start_simple=time.time()
+#derm_sim=SimpleFill().complete(derm)
+#print(time.time()-start_simple)
+
+
+#Actual missing values
+from fancyimpute import KNN
+derm_raw_knn=KNN(k=3).complete(derm_raw)
+derm_raw_knn=pd.DataFrame(derm_raw_knn)
+print(derm_raw_knn.dtypes)
+#column goes missing
+derm_raw_knn.columns=derm_raw.columns
+derm_raw_knn.index=derm_raw.index
+print(derm_raw_knn.age[28:38])
+
+print(derm_raw_knn.describe(include='all'))
+print(derm_raw_knn.age.isnull().any())
+
+#Simple mean impute
 from fancyimpute import SimpleFill
-start_simple=time.time()
-derm_sim=SimpleFill().complete(derm)
-print(time.time()-start_simple)
+derm_raw_simple=pd.DataFrame(SimpleFill().complete(derm_raw))
+print(derm_raw_simple.dtypes)
+derm_raw_simple.columns=derm_raw.columns
+derm_raw_simple.index=derm_raw.index
+
+#Converting for knn
+colnames=list(derm_raw_knn.columns.values)
+colnames=colnames[:-2]
+print(colnames)
+for i in colnames:
+	derm_raw_knn[i]=derm_raw_knn[i].astype('category')
+print(derm_raw_knn.dtypes)
+#disease type to categorical
+derm_raw_knn.disease_type=derm_raw_knn.disease_type.astype('category')
+print(derm_raw_knn.disease_type)
+#age to numeric
+derm_raw_knn.age=derm_raw_knn.age.convert_objects(convert_numeric=True)
+print(derm_raw_knn.age[28:38])
+
+#Converting for simple impute
+colnames=list(derm_raw_simple.columns.values)
+colnames=colnames[:-2]
+print(colnames)
+for i in colnames:
+	derm_raw_simple[i]=derm_raw_simple[i].astype('category')
+print(derm_raw_simple.dtypes)
+#disease type to categorical
+derm_raw_simple.disease_type=derm_raw_simple.disease_type.astype('category')
+print(derm_raw_simple.disease_type)
+#age to numeric
+derm_raw_simple.age=derm_raw_simple.age.convert_objects(convert_numeric=True)
+print(derm_raw_simple.age[28:38])
+
