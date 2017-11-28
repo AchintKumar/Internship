@@ -3,6 +3,8 @@ import seaborn as sns
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
+import scipy
+import sklearn
 #Reading and changing path
 print(os.getcwd())
 os.chdir('/media/achint/INSOFE/Internship')
@@ -50,7 +52,7 @@ print(derm_raw.disease_type)
 derm_raw.age=derm_raw.age.convert_objects(convert_numeric=True)
 print(derm_raw.age[28:38])
 
-
+print(derm_raw.groupby('disease_type').size())
 
 
 #Univariate Analysis of first 33 elements
@@ -192,4 +194,25 @@ print(derm_raw_simple.disease_type)
 #age to numeric
 derm_raw_simple.age=derm_raw_simple.age.convert_objects(convert_numeric=True)
 print(derm_raw_simple.age[28:38])
+
+#MICE impute cannot be done coz it works only on num data
+
+
+########   MODEL    BUILDING   ###############
+
+#Splitting
+train_raw,val_raw,test_raw=np.split(derm_raw.sample(frac=1),[int(0.6*len(derm_raw)), int(0.8*len(derm_raw))])
+print(train_raw.shape)
+print(val_raw.shape)
+print(test_raw.shape)
+
+train_knn,val_knn,test_knn=np.split(derm_raw_knn.sample(frac=1),[int(0.6*len(derm_raw_knn)),int(0.8*len(derm_raw_knn))])
+print(train_knn.shape)
+print(val_knn.shape)
+print(test_knn.shape)
+
+train_mean,val_mean,test_mean=np.split(derm_raw_simple.sample(frac=1),[int(0.6*len(derm_raw_simple)),int(0.8*len(derm_raw_simple))])
+print(train_mean.shape)
+print(val_mean.shape)
+print(test_mean.shape)
 
